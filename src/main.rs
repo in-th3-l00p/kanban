@@ -66,10 +66,9 @@ fn main() -> std::io::Result<()> {
     let project_file_path = matches
         .get_one::<PathBuf>("file")
         .expect("invalid project file");
-    println!("{}", project_file_path.to_str().unwrap());
 
     if let Some(_matches) = matches.subcommand_matches("project") {
-        let project = Project::load(".kanban")?;
+        let project = Project::load(project_file_path)?;
         println!("project name {}", project.name);
         println!("project description {}", project.description);
         println!("project author {}", project.author);

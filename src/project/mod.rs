@@ -1,6 +1,7 @@
+use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::Write;
-use serde::{Deserialize, Serialize};
+use std::path::Path;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Project {
@@ -22,7 +23,7 @@ impl Project {
         Ok(())
     }
 
-    pub fn load(file_name: &str) -> std::io::Result<Project> {
+    pub fn load<P: AsRef<Path>>(file_name: P) -> std::io::Result<Project> {
         let mut project_file = File::open(file_name)?;
         Ok(serde_json::from_reader(&mut project_file)?)
     }
