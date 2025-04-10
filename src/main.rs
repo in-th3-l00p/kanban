@@ -1,10 +1,17 @@
 mod project;
 
-use clap::{arg, command, ArgAction};
+use std::path::PathBuf;
+use clap::{arg, command, value_parser, ArgAction};
 use project::Project;
 
 fn main() -> std::io::Result<()> {
     let matches = command!()
+        .arg(
+            arg!(-f --file <FILE> "project file")
+                .required(false)
+                .value_parser(value_parser!(PathBuf))
+                .default_value(".kanban")
+        )
         .subcommand(
             command!("init")
                 .about("initializes a kanban project in the current directory")
@@ -55,7 +62,13 @@ fn main() -> std::io::Result<()> {
         )
         .get_matches();
 
-    if let Some(matches) = matches.subcommand_matches("project") {
+    // received from the arguments, default ".kanban"
+    let project_file_path = matches
+        .get_one::<PathBuf>("file")
+        .expect("invalid project file");
+    println!("{}", project_file_path.to_str().unwrap());
+
+    if let Some(_matches) = matches.subcommand_matches("project") {
         let project = Project::load(".kanban")?;
         println!("project name {}", project.name);
         println!("project description {}", project.description);
