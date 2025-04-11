@@ -1,13 +1,8 @@
-pub mod commands;
+mod commands;
 
-use crate::cli::commands::Command;
 use clap::{arg, command, value_parser, ArgAction};
 use std::path::PathBuf;
 
-pub struct ProgramState {
-    pub project_file_path: PathBuf,
-    pub command: Command
-}
 
 fn get_clap_command() -> clap::Command {
     command!()
@@ -73,22 +68,21 @@ fn get_clap_command() -> clap::Command {
         )
 }
 
-pub fn get_program_state() -> ProgramState {
-    let clap_command = get_clap_command();
-    let matches = clap_command.get_matches();
-    ProgramState {
-        project_file_path: matches // get rid of the clone
-            .get_one::<PathBuf>("file")
-            .expect("invalid project file")
-            .clone(),
-        command: if let Some(_) = matches.subcommand_matches("project") {
-            Command::Project
-        } else {
-            Command::Help
-        }
-    }
+// optimize
+fn print_help() -> std::io::Result<()> {
+    get_clap_command().print_help()
 }
 
-pub fn print_help() -> std::io::Result<()> {
-   get_clap_command().print_help()
+pub fn execute_cli() -> std::io::Result<()> {
+    let clap_command = get_clap_command();
+    let matches = clap_command.get_matches();
+    let project_file_path = matches
+            .get_one::<PathBuf>("file")
+            .expect("invalid project file");
+
+    if let Some(_) = matches.subcommand_matches("project") {
+        commands::program::execute(project_file_path)
+    } else {
+        print_help()
+    }
 }
